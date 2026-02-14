@@ -5,6 +5,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>ex-react-animali-preferiti</title>
 
+        <link rel="stylesheet" href="./style.css">
+
         <!-- CDN react -->
         <script
             src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -20,10 +22,34 @@
             type="text/babel"> 
 
          const {useState} =  React 
+
+         function Modal({
+            title, 
+            content, 
+            show = false, 
+            onClose = () => {},
+            onConfirm = () => {}
+            }){
+                return show && ReactDOM.createPortal(
+                    <div className="modal-container">
+                        <div className="modal">
+                            <h2>{title}</h2>
+                            <div>{content}</div>
+                            <div>
+                            <button onClick={onClose}>Annulla</button>
+                            <button onClick={onConfirm}>Conferma</button>
+                            </div>
+                        </div>
+                    </div>,
+                    document.body
+                )
+            }
     
         const ListaAnimali = () => {
         const animalsChoices = ["Cane", "Gatto", "Pappagallo", "Cavallo", "Panda"]
         const [animals, setAnimals] = useState([])
+        const [show, setShow] = useState(false) 
+        const [animaleScelto, setAnimaleScelto] = useState("")
 
         const aggiungiAnimale = () => {
             const indiceCasuale = Math.floor(Math.random() * animalsChoices.length)
@@ -31,9 +57,19 @@
             setAnimals([...animals, animaleCasuale])
         }
 
+        function listaAnimaliScelti () {
+            if(animaleScelto != "") {
+                setAnimals([...animals, animaleScelto])
+                setShow(false)
+                setAnimaleScelto("")
+            }
+        }
+
+
+
         return (
             <>
-            <button onClick={aggiungiAnimale}>Aggiungi animale</button>
+            <button onClick={() => setShow(true)}>Aggiungi animale</button>
             <details>
                 <summary>
                     <strong>Animali</strong>
@@ -47,6 +83,20 @@
                         }
                     </ul>
                 </div>
+                <Modal
+                    title="Aggiungi un animale"
+                    content={
+                        <input
+                            type="text"
+                            placeholder="Aggiungi un nuovo animale"
+                            value={animaleScelto}
+                            onChange={(e) => setAnimaleScelto(e.target.value)}
+                        />
+                    }
+                    show={show}
+                    onClose={() => setShow(false)}
+                    onConfirm={listaAnimaliScelti}
+                />
             </details>
             </>
             )
